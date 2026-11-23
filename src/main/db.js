@@ -68,7 +68,7 @@ function init() {
 
     CREATE TABLE IF NOT EXISTS tags (
       id       INTEGER PRIMARY KEY AUTOINCREMENT,
-      name     TEXT    NOT NULL UNIQUE,   -- 标签名，如"开发中"
+      name     TEXT    NOT NULL UNIQUE,   -- 标签名
       sort     INTEGER NOT NULL DEFAULT 0 -- 显示顺序
     );
 
@@ -85,14 +85,6 @@ function init() {
     getDb().exec("ALTER TABLE records ADD COLUMN images TEXT"); // JSON 数组字符串，存图片相对路径
   }
 
-  // seed：首次建表后塞入默认业务阶段标签
-  const cnt = getDb().prepare('SELECT COUNT(*) AS n FROM tags').get().n;
-  if (cnt === 0) {
-    const defaults = ['需求分析', '沟通中', '开发中', '测试中', '已上线'];
-    const ins = getDb().prepare('INSERT INTO tags (name, sort) VALUES (?, ?)');
-    defaults.forEach((name, i) => ins.run(name, i));
-  }
-
   return dbPath;
 }
 
@@ -107,7 +99,7 @@ function getDb() {
  * 新增一条记录。
  * 支持两种可选维度：
  *   - status：旧的状态标记（done/wip/blocked/todo）
- *   - tag：业务阶段标签（需求分析/开发中/…），存入 status 列（TEXT）
+ *   - tag：业务阶段标签，存入 status 列（TEXT）
  * 二者互斥传入，tag 优先。
  *   - images：图片相对路径数组（可空），存为 JSON 字符串
  */
