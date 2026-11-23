@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>管理标签</title>
+  <link rel="stylesheet" href="manager.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>分类管理</h1>
+    <p class="sub">管理「业务阶段标签」与「产品分类」，记日志时可快速选择。</p>
+  </header>
+
+  <!-- Tab 切换 -->
+  <div class="tabs">
+    <button class="tab active" data-tab="tag">业务阶段标签</button>
+    <button class="tab" data-tab="product">产品分类</button>
+  </div>
+
+  <!-- 标签 Tab -->
+  <div class="tab-panel" id="panel-tag">
+    <div class="add-row">
+      <input id="new-tag" type="text" placeholder="添加新标签，如：待评审" maxlength="20" />
+      <button id="add-btn" class="primary">添加</button>
+    </div>
+    <ul id="tag-list" class="tag-list"></ul>
+  </div>
+
+  <!-- 产品 Tab -->
+  <div class="tab-panel" id="panel-product" style="display:none;">
+    <div class="add-row">
+      <input id="new-product" type="text" placeholder="添加新产品，如：宁职APP" maxlength="30" />
+      <button id="add-product-btn" class="primary">添加</button>
+    </div>
+    <ul id="product-list" class="tag-list"></ul>
+  </div>
+
+  <script src="manager.js"></script>
+</body>
+</html>

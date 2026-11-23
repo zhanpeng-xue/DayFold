@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dayfold</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="widget">
+    <textarea
+      id="record-input"
+      placeholder="记一条工作内容，回车即存（Shift+Enter 换行）"
+      autofocus
+      spellcheck="false"
+      rows="3"
+    ></textarea>
+    <!-- 粘贴的图片预览 -->
+    <div class="image-preview" id="image-preview"></div>
+    <!-- 业务阶段标签：可点选，选中高亮 -->
+    <div class="tag-row" id="tag-row"></div>
+    <!-- 产品分类：单选下拉 -->
+    <div class="product-row" id="product-row">
+      <label for="product-select">产品</label>
+      <select id="product-select">
+        <option value="">（未选择）</option>
+      </select>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

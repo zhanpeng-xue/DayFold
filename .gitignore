@@ -1,0 +1,15 @@
+node_modules/
+dist/
+out/
+release/
+data/
+*.log
+error.log
+llm-error.log
+startup-*.log
+db-backup-*/
+抢救数据-*.txt
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

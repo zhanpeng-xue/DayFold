@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          # 云端海外环境用默认源；覆盖本地 .npmrc 的国内镜像
+          npm_config_registry: https://registry.npmjs.org
+          ELECTRON_MIRROR: ""
+
+      - name: Build (NSIS + portable)
+        run: npx electron-builder --win --publish never
+        env:
+          ELECTRON_MIRROR: ""
+          ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/electron-builder-cache
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dayfold-windows
+          path: |
+            release/*.exe
+            release/*.blockmap
+          if-no-files-found: error
+
+  release:
+    needs: build-windows
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Dayfold-windows
+          path: dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

@@ -1,0 +1,54 @@
+{
+  "name": "dayfold",
+  "version": "0.1.0",
+  "description": "Dayfold - 常驻托盘的极简工作日志桌面工具（Electron）",
+  "author": "Dayfold",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "start:ps": "powershell -ExecutionPolicy Bypass -File ./start.ps1",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win"
+  },
+  "bin": {
+    "dayfold": "./src/main/index.js"
+  },
+  "build": {
+    "appId": "com.dayfold.app",
+    "productName": "Dayfold",
+    "copyright": "Dayfold",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "electronLanguages": [
+      "zh-CN",
+      "en-US"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Dayfold"
+    },
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    }
+  },
+  "devDependencies": {
+    "electron": "45.3.3",
+    "electron-builder": "^26.18.0"
+  }
+}

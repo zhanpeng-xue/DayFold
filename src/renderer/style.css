@@ -1,0 +1,122 @@
+/* Dayfold · uTools 式极简输入挂件（带业务阶段标签） */
+:root {
+  --bg: #ffffff;
+  --text: #1f2329;
+  --placeholder: #a8aeb7;
+  --accent: #4a90e2;
+  --chip-bg: #f3f5f7;
+  --chip-border: #e3e6ea;
+  --chip-active: #4a90e2;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg); /* 不透明窗口，整窗白底 */
+  overflow: hidden;
+}
+
+/* 挂件主体：不透明窗口下直接占满 */
+.widget {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 18px 12px;
+  background: var(--bg);
+  overflow-y: auto; /* 内容多时（图片预览）可滚动 */
+}
+
+/* 输入框：干净、无边框，只留一条底部强调线（多行 textarea） */
+#record-input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid var(--accent);
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  color: var(--text);
+  letter-spacing: 0.2px;
+  caret-color: var(--accent);
+  padding: 4px 0 8px;
+  resize: none; /* 固定行高，靠滚动 */
+  line-height: 1.5;
+}
+
+#record-input::placeholder {
+  color: var(--placeholder);
+}
+
+/* 图片预览区 */
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.preview-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--chip-border);
+  cursor: pointer;
+}
+
+/* 标签行 */
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* 产品分类下拉 */
+.product-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.product-row label {
+  font-size: 12px;
+  color: var(--placeholder);
+  flex-shrink: 0;
+}
+.product-row select {
+  flex: 1;
+  border: 1px solid var(--chip-border);
+  background: #fff;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+}
+.product-row select:focus { outline: none; border-color: var(--accent); }
+
+.tag-chip {
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  color: #4a5560;
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: all .12s;
+}
+
+.tag-chip:hover {
+  border-color: var(--chip-active);
+  color: var(--chip-active);
+}
+
+.tag-chip.active {
+  background: var(--chip-active);
+  border-color: var(--chip-active);
+  color: #fff;
+  font-weight: 600;
+}
