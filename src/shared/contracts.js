@@ -19,6 +19,7 @@ const IPC = {
   // 窗口
   HIDE_WINDOW: 'window:hide', // 保存后自动隐藏挂件窗口（驻留托盘）
   COPY_TEXT: 'clipboard:copyText', // 复制文本到系统剪贴板
+  EXPORT_MARKDOWN: 'export:markdown', // 导出 Markdown 文件（弹保存对话框）
   // 标签（业务阶段）
   LIST_TAGS: 'tag:list', // 列出全部标签（按顺序）
   ADD_TAG: 'tag:add', // 新增标签

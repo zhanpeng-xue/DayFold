@@ -11,6 +11,7 @@ const IPC = {
   DELETE_IMAGE: 'record:deleteImage',
   HIDE_WINDOW: 'window:hide',
   COPY_TEXT: 'clipboard:copyText',
+  EXPORT_MARKDOWN: 'export:markdown',
   LIST_TAGS: 'tag:list',
   ADD_TAG: 'tag:add',
   RENAME_TAG: 'tag:rename',
@@ -41,6 +42,7 @@ contextBridge.exposeInMainWorld('dayfold', {
   // 窗口：保存后自动隐藏挂件
   hideWindow: () => ipcRenderer.send(IPC.HIDE_WINDOW),
   copyText: (text) => ipcRenderer.invoke(IPC.COPY_TEXT, text),
+  exportMarkdown: (payload) => ipcRenderer.invoke(IPC.EXPORT_MARKDOWN, payload),
   // 标签（业务阶段）
   listTags: () => ipcRenderer.invoke(IPC.LIST_TAGS),
   addTag: (name) => ipcRenderer.invoke(IPC.ADD_TAG, name),

@@ -1,5 +1,5 @@
 // Electron 主进程入口：uTools 式极简挂件窗口 + 托盘 + IPC + 数据层
-const { app, BrowserWindow, ipcMain, Notification, globalShortcut, clipboard, protocol, net } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, globalShortcut, clipboard, protocol, net, dialog } = require('electron');
 const { pathToFileURL } = require('url');
 const path = require('path');
 const { IPC } = require('../shared/contracts');
@@ -299,6 +299,27 @@ function registerIpc() {
     try {
       clipboard.writeText(String(text || ''));
       return { ok: true };
+    } catch (err) {
+      return { ok: false, error: String(err && err.message ? err.message : err) };
+    }
+  });
+  // 导出 Markdown 文件：弹保存对话框，写文件
+  ipcMain.handle(IPC.EXPORT_MARKDOWN, async (_e, payload) => {
+    try {
+      const content = (payload && payload.content) || '';
+      const defaultName = (payload && payload.defaultName) || 'dayfold-export.md';
+      if (!content) return { ok: false, error: '没有可导出的内容' };
+
+      const win = BrowserWindow.getFocusedWindow() || mainWindow;
+      const { canceled, filePath } = await dialog.showSaveDialog(win, {
+        title: '导出 Markdown',
+        defaultPath: defaultName,
+        filters: [{ name: 'Markdown', extensions: ['md'] }],
+      });
+      if (canceled || !filePath) return { ok: false, canceled: true };
+
+      fs.writeFileSync(filePath, content, 'utf8');
+      return { ok: true, filePath };
     } catch (err) {
       return { ok: false, error: String(err && err.message ? err.message : err) };
     }

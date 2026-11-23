@@ -467,7 +467,13 @@ function drawWeekView(view, start, end, draft) {
     setTimeout(() => { copyBtn.textContent = '复制周报'; }, 1500);
   };
 
+  const exportBtn = document.createElement('button');
+  exportBtn.className = 'mini-btn';
+  exportBtn.textContent = '导出为文件';
+  exportBtn.onclick = () => openExportPanel(view, card, start, end, draft);
+
   btnRow.appendChild(copyBtn);
+  btnRow.appendChild(exportBtn);
   head.appendChild(btnRow);
   card.appendChild(head);
 
@@ -482,6 +488,77 @@ function drawWeekView(view, start, end, draft) {
 
   view.innerHTML = '';
   view.appendChild(card);
+}
+
+// —— 导出 —— //
+
+// 打开导出面板：选日期范围，保存为 Markdown 文件（无 AI，仅结构化汇总）
+function openExportPanel(view, card, defaultStart, defaultEnd, draft) {
+  const old = card.querySelector('.export-panel');
+  if (old) old.remove();
+
+  const panel = document.createElement('div');
+  panel.className = 'export-panel';
+
+  panel.innerHTML = `
+    <div class="export-title">导出 Markdown</div>
+    <div class="export-row">
+      <label>开始日期</label>
+      <input type="date" id="export-start" value="${esc(defaultStart)}" />
+      <label>结束日期</label>
+      <input type="date" id="export-end" value="${esc(defaultEnd)}" />
+    </div>
+    <div class="export-actions">
+      <button class="mini-btn primary" id="export-do">导出</button>
+      <button class="mini-btn" id="export-cancel">取消</button>
+    </div>
+  `;
+  card.insertBefore(panel, card.querySelector('.weekly-content'));
+
+  panel.querySelector('#export-cancel').onclick = () => panel.remove();
+
+  panel.querySelector('#export-do').onclick = async () => {
+    const start = panel.querySelector('#export-start').value;
+    const end = panel.querySelector('#export-end').value;
+    const doBtn = panel.querySelector('#export-do');
+    if (!start || !end || start > end) {
+      alert('请选择有效的日期范围');
+      return;
+    }
+
+    doBtn.disabled = true;
+    doBtn.textContent = '导出中…';
+
+    let content = '';
+    try {
+      const records = await api.getWeekRecords(start, end);
+      content = buildWeeklyDraft(records);
+    } catch (e) {
+      content = '';
+    }
+    if (!content) {
+      alert('所选日期范围内没有记录');
+      doBtn.disabled = false;
+      doBtn.textContent = '导出';
+      return;
+    }
+
+    const finalContent = `# 工作日志导出（${start} ~ ${end}）\n\n${content}\n`;
+    const defaultName = `dayfold-${start}-to-${end}.md`;
+    const res = await api.exportMarkdown({ content: finalContent, defaultName });
+
+    if (res && res.ok) {
+      alert('已导出到：' + res.filePath);
+      panel.remove();
+    } else if (res && res.canceled) {
+      doBtn.disabled = false;
+      doBtn.textContent = '导出';
+    } else {
+      alert('导出失败：' + (res && res.error ? res.error : '未知错误'));
+      doBtn.disabled = false;
+      doBtn.textContent = '导出';
+    }
+  };
 }
 
 // 切换视图
