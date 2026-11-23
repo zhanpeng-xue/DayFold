@@ -376,8 +376,133 @@ async function startEdit(item, contentWrap, record, tags) {
   cancelBtn.onclick = exitEdit;
 }
 
+// —— 周报 —— //
+
+let currentView = 'day'; // 当前视图：day | week
+let weeklyCache = { weekKey: '', draft: '' }; // 周报草稿缓存
+
+// 计算本周（周一到周日）的起止日期
+function getThisWeek() {
+  const now = new Date();
+  const day = now.getDay();
+  const mondayOffset = day === 0 ? 6 : day - 1;
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset);
+  const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+  const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return { start: fmt(monday), end: fmt(sunday) };
+}
+
+// 把记录按「产品」分组，生成周报草稿（markdown）
+function buildWeeklyDraft(records) {
+  if (!records || records.length === 0) return '';
+  const groups = {};
+  const groupsOrder = [];
+  for (const r of records) {
+    const proj = r.project || '（未分类）';
+    if (!groups[proj]) { groups[proj] = []; groupsOrder.push(proj); }
+    groups[proj].push(r);
+  }
+  let md = '';
+  for (const proj of groupsOrder) {
+    md += `### ${proj}\n`;
+    const sorted = groups[proj].slice().sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+    let curDate = '';
+    for (const r of sorted) {
+      const d = r.date || '';
+      if (d !== curDate) {
+        curDate = d;
+        md += `- **${d}**\n`;
+      }
+      const tag = r.status ? ` [${r.status}]` : '';
+      md += `  - ${r.content}${tag}\n`;
+    }
+  }
+  return md;
+}
+
+// 渲染周报视图（结构化汇总 + 复制，无 AI）
+async function renderWeek() {
+  const view = document.getElementById('day-view');
+  const { start, end } = getThisWeek();
+  const weekKey = `${start}_${end}`;
+
+  if (weeklyCache.weekKey === weekKey && weeklyCache.draft !== '') {
+    drawWeekView(view, start, end, weeklyCache.draft);
+    return;
+  }
+
+  view.innerHTML = `<div class="loading">正在生成本周周报…</div>`;
+
+  let records = [];
+  try {
+    records = await api.getWeekRecords(start, end);
+  } catch (e) {
+    view.innerHTML = '<div class="empty">周报加载失败</div>';
+    return;
+  }
+
+  const draft = buildWeeklyDraft(records);
+  weeklyCache = { weekKey, draft };
+  drawWeekView(view, start, end, draft);
+}
+
+function drawWeekView(view, start, end, draft) {
+  const title = `本周周报（${start} ~ ${end}）`;
+
+  const card = document.createElement('div');
+  card.className = 'day-card';
+
+  const head = document.createElement('div');
+  head.className = 'weekly-head';
+  head.innerHTML = `<span class="weekly-title">${esc(title)}</span>`;
+  const btnRow = document.createElement('div');
+  btnRow.className = 'weekly-actions';
+
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'mini-btn';
+  copyBtn.textContent = '复制周报';
+  copyBtn.onclick = async () => {
+    await api.copyText(draft);
+    copyBtn.textContent = '已复制';
+    setTimeout(() => { copyBtn.textContent = '复制周报'; }, 1500);
+  };
+
+  btnRow.appendChild(copyBtn);
+  head.appendChild(btnRow);
+  card.appendChild(head);
+
+  const contentBox = document.createElement('div');
+  contentBox.className = 'weekly-content';
+  if (draft) {
+    contentBox.innerHTML = renderMarkdownLite(draft) || '<div class="empty">（空）</div>';
+  } else {
+    contentBox.innerHTML = '<div class="empty">本周还没有任何记录。用挂件记几条吧。</div>';
+  }
+  card.appendChild(contentBox);
+
+  view.innerHTML = '';
+  view.appendChild(card);
+}
+
+// 切换视图
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view-tab').forEach((t) => {
+    t.classList.toggle('active', t.dataset.view === view);
+  });
+  document.getElementById('date-nav').style.display = (view === 'day') ? 'flex' : 'none';
+  if (view === 'week') {
+    renderWeek();
+  } else {
+    renderDay();
+  }
+}
+
 // 启动
 (async function init() {
+  document.querySelectorAll('.view-tab').forEach((t) => {
+    t.addEventListener('click', () => switchView(t.dataset.view));
+  });
   await renderDateNav();
   await renderDay();
 })();

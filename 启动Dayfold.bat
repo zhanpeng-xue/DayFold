@@ -3,26 +3,34 @@ setlocal
 cd /d "%~dp0"
 
 echo ================================================
-echo   Dayfold Launcher
+echo   Dayfold Launcher (dev mode first)
 echo ================================================
 echo.
 
-rem Check for the packaged exe first (self-contained, most reliable)
-set "EXE=%~dp0release\win-unpacked\Dayfold.exe"
+rem Clear polluting env vars early
+set "ELECTRON_RUN_AS_NODE="
+set "ELECTRON_ENABLE_LOGGING="
 
+rem --- dev mode (runs latest src code) ---
+if exist "node_modules\electron\dist\electron.exe" (
+    echo [OK] Dev environment ready. Starting latest code...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0start.ps1"
+    exit /b 0
+)
+
+rem --- no dev env: try packaged build ---
+set "EXE=%~dp0release\win-unpacked\Dayfold.exe"
 if exist "%EXE%" (
-    echo [OK] Found packaged app. Launching...
+    echo [OK] No dev env, launching packaged build instead...
     start "" "%EXE%"
     echo.
     echo Dayfold launched from packaged build.
-    echo If no tray icon appears, open release\win-unpacked and double-click Dayfold.exe.
     timeout /t 3 >nul
     exit /b 0
 )
 
-echo [INFO] Packaged app not found, trying dev mode...
-
-rem Check Node.js
+rem --- nothing available: install deps ---
+echo [INFO] No runnable copy found, installing dependencies...
 where node >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Node.js not found. Install it from https://nodejs.org/
@@ -31,30 +39,14 @@ if errorlevel 1 (
     exit /b 1
 )
 
-rem Install dependencies if needed
-if not exist "node_modules\electron\dist\electron.exe" (
-    echo [INFO] Installing dependencies, please wait...
-    call npm install
-    if errorlevel 1 (
-        echo.
-        echo [ERROR] npm install failed.
-        echo.
-        pause
-        exit /b 1
-    )
+call npm install
+if errorlevel 1 (
+    echo [ERROR] npm install failed.
+    pause
+    exit /b 1
 )
 
-rem Clear polluting env vars
-set "ELECTRON_RUN_AS_NODE="
-set "ELECTRON_ENABLE_LOGGING="
-
-echo [INFO] Starting dev mode...
+echo [INFO] Starting latest code...
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0start.ps1"
 
-if errorlevel 1 (
-    echo.
-    echo [ERROR] Failed to start.
-    pause
-)
-endlocal
 exit /b 0

@@ -1,5 +1,5 @@
 // Electron 主进程入口：uTools 式极简挂件窗口 + 托盘 + IPC + 数据层
-const { app, BrowserWindow, ipcMain, Notification, globalShortcut, protocol, net } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, globalShortcut, clipboard, protocol, net } = require('electron');
 const { pathToFileURL } = require('url');
 const path = require('path');
 const { IPC } = require('../shared/contracts');
@@ -291,9 +291,18 @@ function registerIpc() {
   ipcMain.handle(IPC.DELETE_IMAGE, (_e, relPath) => deleteImage(relPath));
   ipcMain.handle(IPC.GET_SUMMARY, (_e, date) => db.getSummaryByDate(date));
   ipcMain.handle(IPC.UPSERT_SUMMARY, (_e, payload) => db.upsertSummary(payload));
+  ipcMain.handle(IPC.GET_WEEK_RECORDS, (_e, startDate, endDate) => db.listRecordsByDateRange(startDate, endDate));
   ipcMain.handle(IPC.LIST_DATES, (_e, limit) => db.listDates(limit || 30));
   ipcMain.handle(IPC.GET_DAY_UNIT, (_e, date) => db.getDayUnit(date));
   ipcMain.on(IPC.HIDE_WINDOW, () => hideWindow());
+  ipcMain.handle(IPC.COPY_TEXT, (_e, text) => {
+    try {
+      clipboard.writeText(String(text || ''));
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: String(err && err.message ? err.message : err) };
+    }
+  });
 
   // 标签（业务阶段）
   ipcMain.handle(IPC.LIST_TAGS, () => db.listTags());

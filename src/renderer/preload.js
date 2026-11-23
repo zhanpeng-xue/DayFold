@@ -10,6 +10,7 @@ const IPC = {
   SAVE_IMAGE: 'record:saveImage',
   DELETE_IMAGE: 'record:deleteImage',
   HIDE_WINDOW: 'window:hide',
+  COPY_TEXT: 'clipboard:copyText',
   LIST_TAGS: 'tag:list',
   ADD_TAG: 'tag:add',
   RENAME_TAG: 'tag:rename',
@@ -24,6 +25,7 @@ const IPC = {
   LIST_DATES: 'history:listDates',
   GET_DAY_UNIT: 'day:getDayUnit',
   UPSERT_SUMMARY: 'summary:upsert',
+  GET_WEEK_RECORDS: 'summary:weekRecords',
 };
 
 contextBridge.exposeInMainWorld('dayfold', {
@@ -38,6 +40,7 @@ contextBridge.exposeInMainWorld('dayfold', {
   getDayUnit: (date) => ipcRenderer.invoke(IPC.GET_DAY_UNIT, date),
   // 窗口：保存后自动隐藏挂件
   hideWindow: () => ipcRenderer.send(IPC.HIDE_WINDOW),
+  copyText: (text) => ipcRenderer.invoke(IPC.COPY_TEXT, text),
   // 标签（业务阶段）
   listTags: () => ipcRenderer.invoke(IPC.LIST_TAGS),
   addTag: (name) => ipcRenderer.invoke(IPC.ADD_TAG, name),
@@ -54,6 +57,8 @@ contextBridge.exposeInMainWorld('dayfold', {
   getAutostart: () => ipcRenderer.invoke(IPC.AUTOSTART_GET),
   // 手动总结
   upsertSummary: (payload) => ipcRenderer.invoke(IPC.UPSERT_SUMMARY, payload),
+  // 周报
+  getWeekRecords: (startDate, endDate) => ipcRenderer.invoke(IPC.GET_WEEK_RECORDS, startDate, endDate),
   // 主进程 -> 渲染进程：挂件被全局快捷键唤起时，聚焦输入框
   onShowFocus: (cb) => {
     ipcRenderer.on('widget:focus', () => cb && cb());

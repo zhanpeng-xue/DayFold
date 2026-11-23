@@ -12,11 +12,13 @@ const IPC = {
   // 总结
   GET_SUMMARY: 'summary:getByDate', // 取某天总结
   UPSERT_SUMMARY: 'summary:upsert', // 手动保存/更新某天总结
+  GET_WEEK_RECORDS: 'summary:weekRecords', // 取某日期范围的记录（周报）
   // 历史回看
   LIST_DATES: 'history:listDates', // 列出有记录的日期（倒序），供按天回看
   GET_DAY_UNIT: 'day:getDayUnit', // 取某一天完整数据单元（多条记录 + 当天总结）
   // 窗口
   HIDE_WINDOW: 'window:hide', // 保存后自动隐藏挂件窗口（驻留托盘）
+  COPY_TEXT: 'clipboard:copyText', // 复制文本到系统剪贴板
   // 标签（业务阶段）
   LIST_TAGS: 'tag:list', // 列出全部标签（按顺序）
   ADD_TAG: 'tag:add', // 新增标签

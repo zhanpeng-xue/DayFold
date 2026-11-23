@@ -175,6 +175,14 @@ function listRecordsByDate(date) {
     .map(normalizeRecord);
 }
 
+/** 按日期范围取记录（含首尾），时间正序（用于周报汇总） */
+function listRecordsByDateRange(startDate, endDate) {
+  return getDb()
+    .prepare('SELECT * FROM records WHERE date >= ? AND date <= ? ORDER BY date ASC, created_at ASC')
+    .all(startDate, endDate)
+    .map(normalizeRecord);
+}
+
 // —— 总结 —— //
 
 function getSummaryByDate(date) {
@@ -312,6 +320,7 @@ module.exports = {
   deleteRecord,
   getRecordById,
   listRecordsByDate,
+  listRecordsByDateRange,
   getSummaryByDate,
   upsertSummary,
   listDates,

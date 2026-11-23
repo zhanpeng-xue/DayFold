@@ -30,6 +30,29 @@ body {
 
 .header h1 { margin: 0 0 10px; font-size: 18px; }
 
+/* 视图切换 tab */
+.view-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.view-tab {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.view-tab:hover { color: var(--text); }
+.view-tab.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
 /* 日期导航条 */
 .date-nav {
   display: flex;
@@ -246,3 +269,24 @@ body {
   font-size: 13px;
   background: #fff;
 }
+
+/* 周报视图 */
+.weekly-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #fafbfc;
+}
+.weekly-title { font-weight: 600; }
+.weekly-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.weekly-content { padding: 14px; line-height: 1.6; }
+.weekly-content h4 { margin: 12px 0 4px; font-size: 14px; color: #333; }
+.weekly-content p { margin: 6px 0; }
+.weekly-content ul { margin: 4px 0 4px 18px; }
